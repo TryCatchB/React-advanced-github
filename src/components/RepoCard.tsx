@@ -1,0 +1,23 @@
+import { FC } from "react";
+import { IRepo } from "../models/models";
+
+interface RepoCardProps {
+  repo: IRepo;
+}
+
+const RepoCard: FC<RepoCardProps> = ({ repo }) => {
+  return (
+    <div className="border py-3 px-5 rounded mb-2 hover:shadow-smd hover:bg-gray-100 transiton-all">
+      <a href={repo.html_url} target="blank">
+        <h2 className="text-lg font-bold">{repo.full_name}</h2>
+        <p className="text-sm">
+          Forks: <span className="font-bold mr-2">{repo.forks}</span>
+          Watchers: <span className="font-bold">{repo.watchers}</span>
+        </p>
+        <p className="text-sm font-thin">{repo?.description}</p>
+      </a>
+    </div>
+  );
+};
+
+export default RepoCard;
