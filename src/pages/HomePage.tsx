@@ -1,15 +1,17 @@
 import { FC, useEffect, useState } from "react";
-import { useDebounce } from "../hooks/debounce";
+import { useDebounce } from "../hooks/useDebounce";
 import {
   useLazyGetUserReposQuery,
   useSearchUsersQuery,
 } from "../store/github/github.api";
 import RepoCard from "../components/RepoCard";
+import DropDown from "../components/DropDown";
 
 const HomePage: FC = () => {
   const [search, setSearch] = useState("");
-  const debounced = useDebounce(search);
   const [dropDown, setDropDown] = useState(false);
+
+  const debounced = useDebounce(search);
   const { isLoading, isError, data } = useSearchUsersQuery(debounced, {
     skip: debounced.length < 3,
     refetchOnFocus: true,
@@ -17,11 +19,6 @@ const HomePage: FC = () => {
 
   const [fetchRepos, { isLoading: areReposLoading, data: repos }] =
     useLazyGetUserReposQuery();
-
-  const clickHandler = (username: string) => {
-    fetchRepos(username);
-    setDropDown(false);
-  };
 
   useEffect(() => {
     setDropDown(debounced.length > 3 && data?.length! > 0);
@@ -41,20 +38,13 @@ const HomePage: FC = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        {dropDown && (
-          <ul className="list-none absolute top-[42px] left-0 right-0 max-h-[200px] shadow-md bg-white overflow-y-scroll">
-            {isLoading && <p className="text-center">Loading...</p>}
-            {data?.map((user) => (
-              <li
-                key={user.id}
-                onClick={() => clickHandler(user.login)}
-                className="py-2 px-4 hover:bg-gray-500 hover:text-white transition-colors cursor-pointer"
-              >
-                {user.login}
-              </li>
-            ))}
-          </ul>
-        )}
+        <DropDown
+          dropDown={dropDown}
+          setDropDown={setDropDown}
+          fetchRepos={fetchRepos}
+          isLoading={isLoading}
+          data={data}
+        />
 
         <div className="container">
           {areReposLoading && (
